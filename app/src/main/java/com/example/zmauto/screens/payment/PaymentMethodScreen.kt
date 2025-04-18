@@ -35,9 +35,10 @@ data class PaymentMethodOption(
 @Composable
 fun PaymentMethodScreen(
     onBackClick: () -> Unit,
-    onContinueClick: () -> Unit
+    onContinueClick: () -> Unit,
+    onEdahabiaClick: () -> Unit
 ) {
-    var selectedOption by remember { mutableStateOf(CASH) }
+    var selectedOption by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -54,7 +55,16 @@ fun PaymentMethodScreen(
                 PaymentHeader(onBackClick = onBackClick)
                 PaymentOptions(selectedOption) { selectedOption = it }
             }
-            ContinueButton(onClick = onContinueClick)
+            ContinueButton(
+                onClick = { 
+                    if (selectedOption == CARD) {
+                        onEdahabiaClick()
+                    } else if (selectedOption == CASH) {
+                        onContinueClick()
+                    }
+                },
+                enabled = selectedOption.isNotEmpty()
+            )
         }
     }
 }
@@ -78,7 +88,7 @@ private fun PaymentHeader(onBackClick: () -> Unit) {
                 .size(40.dp)
                 .clip(CircleShape)
                 .background(Color.White)
-                .border(1.dp, Color.Black, CircleShape)
+                .border(1.5.dp, Color.Black, CircleShape)
                 .clickable(onClick = onBackClick),
             contentAlignment = Alignment.Center
         ) {
@@ -171,7 +181,7 @@ private fun PaymentOption(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
-                    width = if (isSelected) 1.5.dp else 1.dp,
+                    width = 1.5.dp,
                     color = if (isSelected) Color(0xFF149459) else Color.Black,
                     shape = RoundedCornerShape(12.dp)
                 )
@@ -242,16 +252,22 @@ private fun PaymentLabelRow(icon: Int?, label: String) {
 }
 
 @Composable
-private fun ContinueButton(onClick: () -> Unit) {
+private fun ContinueButton(
+    onClick: () -> Unit,
+    enabled: Boolean
+) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 18.dp),
         shape = RoundedCornerShape(24.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF149459),
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = Color.Gray,
+            disabledContentColor = Color.White
         )
     ) {
         Text(
@@ -271,7 +287,8 @@ fun PreviewPaymentMethod() {
     MaterialTheme {
         PaymentMethodScreen(
             onBackClick = {},
-            onContinueClick = {}
+            onContinueClick = {},
+            onEdahabiaClick = {}
         )
     }
 } 
